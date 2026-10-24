@@ -1,7 +1,14 @@
 ---
 name: Remove needinfo label
 
-on:
+# This workflow uses issue_comment so it can update labels when an external
+# user replies to an issue.
+#
+# Security constraints that must be maintained to prevent code injection:
+#   - Do not checkout or execute any code.
+#   - Do not interpolate free-form issue or comment fields.
+
+on: # zizmor: ignore[dangerous-triggers]
   issue_comment:
     types:
       - created
@@ -24,12 +31,13 @@ jobs:
       issues: write
     steps:
       - name: App token generate
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
         if: ${{ vars.BOT_CLIENT_ID }}
         id: app-token
         with:
-          app-id: ${{ vars.BOT_CLIENT_ID }}
+          client-id: ${{ vars.BOT_CLIENT_ID }}
           private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          permission-issues: write
 
       - name: Remove needinfo label and add answered label
         env:
